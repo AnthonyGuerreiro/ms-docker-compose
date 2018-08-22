@@ -1,0 +1,42 @@
+version: "3.7"
+
+services:
+
+  config-service:
+    image: anthonyguerreiro/ms-config-service:0.1
+    container_name: config-service
+    ports:
+      - "8888:8888"
+    command: --spring.profiles.active=docker
+
+  eureka-service:
+    image: anthonyguerreiro/ms-eureka-service:0.1
+    ports:
+      - "8761:8761"
+    environment:
+      - CONFIG_URI=http://config-service:8888
+    command: --spring.profiles.active=docker
+
+  zuul-proxy:
+    image: anthonyguerreiro/ms-zuul-proxy:0.1
+    ports:
+      - "8050:8050"
+    environment:
+      - CONFIG_URI=http://config-service:8888
+    command: --spring.profiles.active=docker
+
+  hystrix-dashboard:
+    image: anthonyguerreiro/ms-hystrix-dashboard:0.1
+    ports:
+      - "8010:8010"
+    environment:
+      - CONFIG_URI=http://config-service:8888
+    command: --spring.profiles.active=docker
+
+  zipkin:
+    image: openzipkin/zipkin
+    ports:
+      - "9411:9411"
+
+  rabbitmq:
+    image: rabbitmq
